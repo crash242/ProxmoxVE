@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
+source <(curl -fsSL https://raw.githubusercontent.com/crash242/ProxmoxVE/main/misc/build.func)
 # Copyright (c) 2021-2025 tteck
 # Author: tteck (tteckster)
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
@@ -37,10 +37,10 @@ function update_script() {
     if [[ "${RELEASE}" != "$(cat /opt/${APP}_version.txt)" ]] || [[ ! -f /opt/${APP}_version.txt ]]; then
       if [[ "$(gs --version 2>/dev/null)" != "10.04.0" ]]; then
         msg_info "Updating Ghostscript (Patience)"
-        cd /tmp
+        cd /tmp || exit
         curl -fsSL "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10040/ghostscript-10.04.0.tar.gz" -o $(basename "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10040/ghostscript-10.04.0.tar.gz")
         tar -xzf ghostscript-10.04.0.tar.gz
-        cd ghostscript-10.04.0
+        cd ghostscript-10.04.0 || exit
         $STD ./configure
         $STD make
         $STD sudo make install
@@ -52,21 +52,21 @@ function update_script() {
       msg_ok "Stopped all Paperless-ngx Services"
 
       msg_info "Updating to ${RELEASE}"
-      cd ~
+      cd ~ || exit
       curl -fsSL "https://github.com/paperless-ngx/paperless-ngx/releases/download/$RELEASE/paperless-ngx-$RELEASE.tar.xz" -o $(basename "https://github.com/paperless-ngx/paperless-ngx/releases/download/$RELEASE/paperless-ngx-$RELEASE.tar.xz")
-      tar -xf paperless-ngx-$RELEASE.tar.xz
+      tar -xf paperless-ngx-"$RELEASE".tar.xz
       cp -r /opt/paperless/paperless.conf paperless-ngx/
       cp -r paperless-ngx/* /opt/paperless/
-      cd /opt/paperless
+      cd /opt/paperless || exit
       $STD pip install -r requirements.txt
-      cd /opt/paperless/src
+      cd /opt/paperless/src || exit
       $STD /usr/bin/python3 manage.py migrate
       echo "${RELEASE}" >/opt/${APP}_version.txt
       msg_ok "Updated to ${RELEASE}"
 
       msg_info "Cleaning up"
-      cd ~
-      rm paperless-ngx-$RELEASE.tar.xz
+      cd ~ || exit
+      rm paperless-ngx-"$RELEASE".tar.xz
       rm -rf paperless-ngx
       msg_ok "Cleaned"
 
