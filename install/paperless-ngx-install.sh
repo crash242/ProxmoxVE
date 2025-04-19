@@ -143,13 +143,14 @@ else
   msg_info "Creating external database"
 
   # Create database objects on external server
-  if ! PGPASSWORD="$PG_PASS" psql -h "$DB_HOST" -p "$DB_PORT" -U "$PG_USER" <<EOF; then
+  if ! PGPASSWORD="$PG_PASS" psql -h "$DB_HOST" -p "$DB_PORT" -U "$PG_USER" <<EOF
     CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$DB_PASS';
     CREATE DATABASE $DB_NAME WITH OWNER $DB_USER ENCODING 'UTF8' TEMPLATE template0;
     ALTER ROLE $DB_USER SET client_encoding TO 'utf8';
     ALTER ROLE $DB_USER SET default_transaction_isolation TO 'read committed';
     ALTER ROLE $DB_USER SET timezone TO 'UTC';
 EOF
+  then
     msg_error "Failed to set up database. Exiting."
     exit 1
   fi
