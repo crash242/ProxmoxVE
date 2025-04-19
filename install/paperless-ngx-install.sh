@@ -101,7 +101,7 @@ msg_info "Installing Natural Language Toolkit (Patience)"
 $STD python3 -m nltk.downloader -d /usr/share/nltk_data all
 msg_ok "Installed Natural Language Toolkit"
 
-msg_info "You can use the default database or connect to an external server"
+echo "You can use the default database or connect to an external server"
 read -r -p "Would you like use the default (local) PostgreSQL install? <y/N> " db_prompt
 
 # Common variables for both paths
@@ -128,7 +128,7 @@ EOF
 
   msg_ok "Set up PostgreSQL database"
 else
-  msg_info "Please supply the information to connect to your PostgreSQL server. This script will create the database there."
+  echo "Please supply the information to connect to your PostgreSQL server. This script will create the database there."
 
   read -r -p "Postgres host [default: localhost]: " DB_HOST
   DB_HOST=${DB_HOST:-localhost}
@@ -150,7 +150,7 @@ ALTER ROLE $DB_USER SET client_encoding TO 'utf8';
 ALTER ROLE $DB_USER SET default_transaction_isolation TO 'read committed';
 ALTER ROLE $DB_USER SET timezone TO 'UTC';
 EOF
-    msg_info "Failed to set up database. Exiting."
+    msg_error "Failed to set up database. Exiting."
     exit 1
   fi
 
@@ -179,7 +179,7 @@ sed -i -e "s|#PAPERLESS_DBHOST=localhost|PAPERLESS_DBHOST=$DB_HOST|" \
 # Apply database migrations
 cd /opt/paperless/src || exit
 $STD python3 manage.py migrate
-msg_info "Paperless-ngx database configuration complete"
+msg_ok "Paperless-ngx database configuration complete"
 
 read -r -p "Would you like to add Adminer? <y/N> " prompt
 if [[ "${prompt,,}" =~ ^(y|yes)$ ]]; then
